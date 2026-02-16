@@ -1,5 +1,5 @@
 /**
- * Proyecto: Laboratorio de Colisiones (Casos A, B y C)
+ * Proyecto: Laboratorio de Colisiones Interactivo
  * Autora: Diana Denise Campos Lozano
  * Ingeniería en TIC - 9° Semestre
  */
@@ -28,8 +28,6 @@ class Circle {
         this.defaultColor = color;
         this.text = text;
         this.speed = speed;
-        // Propiedad para rastrear si ya estaba chocando con alguien
-        this.estaChocando = false; 
 
         let randomAngle = Math.random() * Math.PI * 2;
         this.dx = Math.cos(randomAngle) * this.speed;
@@ -59,6 +57,8 @@ class Circle {
     }
 }
 
+// --- FUNCIONES DE APOYO ---
+
 function getDistance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
@@ -71,19 +71,28 @@ function resolverColision(c1, c2) {
 
     const distancia = getDistance(c1.posX, c1.posY, c2.posX, c2.posY);
     const superposicion = (c1.radius + c2.radius) - distancia;
-    
     const ajuste = (superposicion / 2) + 1; 
+    
     c1.posX += c1.dx > 0 ? ajuste : -ajuste;
     c1.posY += c1.dy > 0 ? ajuste : -ajuste;
     c2.posX += c2.dx > 0 ? ajuste : -ajuste;
     c2.posY += c2.dy > 0 ? ajuste : -ajuste;
 }
 
+// --- LÓGICA DE INTERFAZ Y BOTONES ---
+
 function cambiarCaso(nuevoCaso) {
     casoActual = nuevoCaso;
-    contadorColisiones = 0;
-    contadorLabel.innerText = contadorColisiones;
-    iniciarLogicaCaso(nuevoCaso);
+    reiniciarSimulacion(); // Al cambiar caso, reseteamos todo automáticamente
+    
+    document.getElementById('header-caso-A').classList.add('d-none');
+    document.getElementById('header-caso-B').classList.add('d-none');
+    document.getElementById('header-caso-C').classList.add('d-none');
+    document.getElementById('header-caso-' + nuevoCaso).classList.remove('d-none');
+
+    const links = document.querySelectorAll('.nav-link');
+    links.forEach(link => link.classList.remove('active'));
+    if(event) event.target.classList.add('active');
 }
 
 function iniciarLogicaCaso(caso) {
@@ -101,14 +110,39 @@ function iniciarLogicaCaso(caso) {
     }
 }
 
+// NUEVA FUNCIÓN: Cambiar colores aleatorios
+function cambiarColoresAleatorios() {
+    listaCirculos.forEach(c => {
+        // Generamos un tono aleatorio (0-360) con saturación y brillo fijos para que se vea bien
+        const nuevoColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        c.defaultColor = nuevoColor;
+        c.color = nuevoColor;
+    });
+}
+
+// NUEVA FUNCIÓN: Reiniciar (F5 Local)
+function reiniciarSimulacion() {
+    contadorColisiones = 0;
+    contadorLabel.innerText = contadorColisiones;
+    framesColision = 0;
+    iniciarLogicaCaso(casoActual);
+}
+
+// --- EVENTOS Y ANIMACIÓN ---
+
+sliderVel.addEventListener("input", (e) => {
+    const v = parseFloat(e.target.value);
+    valorVelLabel.innerText = v;
+    listaCirculos.forEach(c => {
+        let angulo = Math.atan2(c.dy, c.dx);
+        c.dx = Math.cos(angulo) * v;
+        c.dy = Math.sin(angulo) * v;
+    });
+});
+
 function animate() {
     requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    let hayAlgunaColisionAhora = false;
-
-    // Resetear estado de choque de todos los círculos en cada frame
-    listaCirculos.forEach(c => c.color = c.defaultColor);
 
     for (let i = 0; i < listaCirculos.length; i++) {
         for (let j = i + 1; j < listaCirculos.length; j++) {
@@ -116,24 +150,14 @@ function animate() {
             let c2 = listaCirculos[j];
 
             if (getDistance(c1.posX, c1.posY, c2.posX, c2.posY) <= (c1.radius + c2.radius)) {
-                
-                // LÓGICA DEL CONTADOR:
-                // Solo contamos si el "letrerito" estaba en 0 (paz total)
-                // Esto asegura que un choque múltiple cuente como un evento de impacto
                 if (framesColision === 0) {
                     contadorColisiones++;
                     contadorLabel.innerText = contadorColisiones;
                 }
-
-                hayAlgunaColisionAhora = true;
-                framesColision = 10; // Duración del estado de alerta
-                
+                framesColision = 10;
                 c1.color = "#ef4444";
                 c2.color = "#ef4444";
-
-                if (casoActual === 'C') {
-                    resolverColision(c1, c2);
-                }
+                if (casoActual === 'C') resolverColision(c1, c2);
             }
         }
     }
@@ -145,19 +169,11 @@ function animate() {
     } else {
         statusBadge.innerText = "Sistema Estable";
         statusBadge.className = "badge rounded-pill bg-success px-4 py-2 shadow-sm";
+        listaCirculos.forEach(c => c.color = c.defaultColor);
     }
 
     listaCirculos.forEach(c => c.update(ctx));
 }
-
-sliderVel.addEventListener("input", (e) => {
-    valorVelLabel.innerText = e.target.value;
-    listaCirculos.forEach(c => {
-        let angulo = Math.atan2(c.dy, c.dx);
-        c.dx = Math.cos(angulo) * parseFloat(e.target.value);
-        c.dy = Math.sin(angulo) * parseFloat(e.target.value);
-    });
-});
 
 iniciarLogicaCaso('A');
 animate();
