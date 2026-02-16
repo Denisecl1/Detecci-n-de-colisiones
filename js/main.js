@@ -8,6 +8,10 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const statusBadge = document.getElementById("status");
 
+// --- NUEVOS SELECTORES PARA VELOCIDAD ---
+const sliderVel = document.getElementById("sliderVelocidad");
+const valorVelLabel = document.getElementById("valorVelocidad");
+
 // Configuración de dimensiones
 canvas.width = 800;
 canvas.height = 500;
@@ -26,8 +30,9 @@ class Circle {
         this.speed = speed;
 
         // Dirección aleatoria
-        this.dx = (Math.random() - 0.5) * this.speed * 2;
-        this.dy = (Math.random() - 0.5) * this.speed * 2;
+        let randomAngle = Math.random() * Math.PI * 2;
+        this.dx = Math.cos(randomAngle) * this.speed;
+        this.dy = Math.sin(randomAngle) * this.speed;
     }
 
     draw(context) {
@@ -67,17 +72,14 @@ function getDistance(x1, y1, x2, y2) {
 
 // --- LÓGICA DE REBOTE FÍSICO (Caso C) ---
 function resolverColision(c1, c2) {
-    // 1. Invertimos direcciones
     c1.dx = -c1.dx;
     c1.dy = -c1.dy;
     c2.dx = -c2.dx;
     c2.dy = -c2.dy;
 
-    // 2. Separación manual para evitar que se queden pegados (solución al círculo 4 y 2)
     const distancia = getDistance(c1.posX, c1.posY, c2.posX, c2.posY);
     const superposicion = (c1.radius + c2.radius) - distancia;
     
-    // Empujamos ligeramente hacia afuera
     const ajuste = (superposicion / 2) + 1; 
     c1.posX += c1.dx > 0 ? ajuste : -ajuste;
     c1.posY += c1.dy > 0 ? ajuste : -ajuste;
@@ -89,13 +91,11 @@ function resolverColision(c1, c2) {
 function cambiarCaso(nuevoCaso) {
     casoActual = nuevoCaso;
 
-    // UI Headers
     document.getElementById('header-caso-A').classList.add('d-none');
     document.getElementById('header-caso-B').classList.add('d-none');
     document.getElementById('header-caso-C').classList.add('d-none');
     document.getElementById('header-caso-' + nuevoCaso).classList.remove('d-none');
 
-    // UI Navbar
     const links = document.querySelectorAll('.nav-link');
     links.forEach(link => link.classList.remove('active'));
     if(event) event.target.classList.add('active');
@@ -105,9 +105,12 @@ function cambiarCaso(nuevoCaso) {
 
 function iniciarLogicaCaso(caso) {
     listaCirculos = [];
+    // Tomamos la velocidad actual del slider para los nuevos círculos
+    const velActual = parseFloat(sliderVel.value);
+
     if (caso === 'A') {
-        listaCirculos.push(new Circle(150, 200, 60, "#818cf8", "1", 3));
-        listaCirculos.push(new Circle(500, 350, 90, "#f472b6", "2", 2));
+        listaCirculos.push(new Circle(150, 200, 60, "#818cf8", "1", velActual));
+        listaCirculos.push(new Circle(500, 350, 90, "#f472b6", "2", velActual));
     } else {
         let cantidad = (caso === 'B') ? 10 : 15;
         for (let i = 0; i < cantidad; i++) {
@@ -115,11 +118,24 @@ function iniciarLogicaCaso(caso) {
             listaCirculos.push(new Circle(
                 Math.random() * (canvas.width - r * 2) + r,
                 Math.random() * (canvas.height - r * 2) + r,
-                r, "#818cf8", (i + 1).toString(), 2
+                r, "#818cf8", (i + 1).toString(), velActual
             ));
         }
     }
 }
+
+// --- EVENTO DE VELOCIDAD ---
+sliderVel.addEventListener("input", (e) => {
+    const nuevaVel = parseFloat(e.target.value);
+    valorVelLabel.innerText = nuevaVel;
+
+    listaCirculos.forEach(c => {
+        // Obtenemos la dirección actual usando el ángulo para no perder la trayectoria
+        let angulo = Math.atan2(c.dy, c.dx);
+        c.dx = Math.cos(angulo) * nuevaVel;
+        c.dy = Math.sin(angulo) * nuevaVel;
+    });
+});
 
 // --- ANIMACIÓN ---
 function animate() {
@@ -146,7 +162,6 @@ function animate() {
         }
     }
 
-    // Actualizar Badge de Bootstrap
     if (colisionGlobal) {
         statusBadge.innerText = "¡COLISIÓN!";
         statusBadge.className = "badge rounded-pill bg-danger px-4 py-2 shadow-sm";
@@ -158,6 +173,5 @@ function animate() {
     listaCirculos.forEach(c => c.update(ctx));
 }
 
-// Inicio
 iniciarLogicaCaso('A');
 animate();
