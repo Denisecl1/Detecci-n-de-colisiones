@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detección de Colisiones - Diana Campos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary" href="#">LAB-COLISIONES</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menu">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link active" href="#" onclick="cambiarCaso('A')">A. Colisión Simple</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="cambiarCaso('B')">B. Colisión Colectiva</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="cambiarCaso('C')">C. Colisión Múltiple</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5 flex-grow-1">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow border-0 rounded-4 overflow-hidden">
+                <div id="header-caso-A" class="card-header bg-white py-3 border-0 text-center">
+                    <h2 class="h4 mb-1 fw-bold text-dark">Caso A: Distancia entre Objetos</h2>
+                    <p class="text-muted small mb-0">Se detecta colisión si la distancia entre centros ≤ suma de radios.</p>
+                </div>
+                <div id="header-caso-B" class="card-header bg-white py-3 border-0 text-center d-none">
+                    <h2 class="h4 mb-1 fw-bold text-dark">Caso B: Colisión Colectiva</h2>
+                    <p class="text-muted small mb-0">Detección simultánea entre múltiples objetos utilizando bucles anidados.</p>
+                </div>
+                <div id="header-caso-C" class="card-header bg-white py-3 border-0 text-center d-none">
+                    <h2 class="h4 mb-1 fw-bold text-dark">Caso C: Colisión Múltiple (Rebote)</h2>
+                    <p class="text-muted small mb-0">Física avanzada: los objetos reaccionan físicamente al impacto.</p>
+                </div>
+                
+                <div class="canvas-container bg-dark d-flex justify-content-center align-items-center p-3">
+                    <canvas id="canvas"></canvas>
+                </div>
+                
+                <div class="card-footer bg-white py-3 text-center">
+                    <div id="status" class="badge rounded-pill bg-success px-4 py-2">Sistema Estable</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <footer class="py-4 mt-5 text-center border-top bg-white">
+        <p class="mb-0 text-muted small">Diana Denise Campos Lozano | Ingeniería en TIC | 9° Semestre</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

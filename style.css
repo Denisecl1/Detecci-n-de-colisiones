@@ -1,0 +1,23 @@
+body {
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.canvas-container {
+    min-height: 500px;
+}
+
+canvas {
+    background-color: #111827; /* Fondo oscuro neón */
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    max-width: 100%;
+}
+
+.text-primary {
+    color: #6366f1 !important;
+}
+
+.badge {
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
